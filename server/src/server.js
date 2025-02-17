@@ -33,8 +33,6 @@ app.get("/api/user", async (req, res) => {
       .from("users")
       .limit(100);
 
-    console.log(users);
-
     res.json(users);
   } catch (error) {
     console.error("Database connection error:", error);

@@ -41,7 +41,7 @@ router.post("/register", async (req, res) => {
       })
       .returning(["id", "username", "city"]);
 
-    res.status(201).json(user);
+    res.status(201).json({ message: "Successfully registered", user });
   } catch (err) {
     res.status(500).json({ message: "Error registering" });
     throw err;
@@ -54,13 +54,17 @@ router.post("/login", async (req, res) => {
 
   try {
     const user = await knex("users")
+      .select("id", "username", "password")
       .where("username", userData.username)
       .first();
 
     if (user && bcrypt.compareSync(userData.password, user.password)) {
       req.session.user = user;
 
-      res.status(200).json({ message: "Successfully logged in" });
+      res.status(200).json({
+        message: "Successfully logged in",
+        user: { id: user.id, username: user.username },
+      });
     } else {
       res.status(401).json({ message: "Invalid credentials" });
     }
@@ -82,7 +86,7 @@ router.delete("/logout", (req, res) => {
       }
     });
   } else {
-    res.json({ message: "Error logging in" });
+    res.json({ message: "Error logging out" });
   }
 });
 
@@ -99,10 +103,10 @@ router.get("/user", async (req, res) => {
       .first();
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found", user });
     }
 
-    res.json(user);
+    res.json({ message: "Auth successful", user });
   } catch (err) {
     res.json({ message: "Error authenticating" });
     throw err;
